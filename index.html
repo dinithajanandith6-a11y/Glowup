@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaxxYourLook – Men's Glow Up Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --cream: #f4f0e8;
+    --gold: #c9a84c;
+    --gold-light: #e8d4a0;
+    --rust: #b84a2e;
+    --charcoal: #1a1a1a;
+    --mid: #2e2e2e;
+    --text-dim: #888;
+    --card-bg: #141414;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--cream); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px 48px;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+  .logo { font-family:'Bebas Neue'; font-size:28px; letter-spacing:3px; color:var(--gold); }
+  .logo span { color: var(--cream); }
+  .nav-links { display:flex; gap:32px; list-style:none; }
+  .nav-links a { color: var(--text-dim); text-decoration:none; font-size:13px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; transition:.2s; }
+  .nav-links a:hover { color:var(--gold); }
+  .nav-cta { background:var(--gold); color:var(--black); padding:10px 22px; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer; transition:.2s; }
+  .nav-cta:hover { background:var(--gold-light); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height:100vh; display:flex; align-items:center;
+    padding: 120px 48px 80px;
+    position:relative; overflow:hidden;
+  }
+  .hero-bg {
+    position:absolute; inset:0; z-index:0;
+    background: radial-gradient(ellipse 70% 60% at 70% 50%, rgba(201,168,76,0.08) 0%, transparent 70%),
+                linear-gradient(135deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%);
+  }
+  .hero-grid-lines {
+    position:absolute; inset:0; z-index:0;
+    background-image: linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position:relative; z-index:1; max-width:620px; }
+  .hero-eyebrow { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:var(--gold); margin-bottom:20px; display:flex; align-items:center; gap:12px; }
+  .hero-eyebrow::before { content:''; display:block; width:32px; height:1px; background:var(--gold); }
+  .hero h1 { font-family:'Bebas Neue'; font-size:clamp(72px, 10vw, 120px); line-height:.95; margin-bottom:10px; letter-spacing:2px; }
+  .hero h1 em { font-family:'Playfair Display'; font-style:italic; color:var(--gold); display:block; font-size:.75em; }
+  .hero-sub { color:#aaa; font-size:16px; line-height:1.7; max-width:480px; margin:24px 0 40px; font-weight:300; }
+  .hero-btns { display:flex; gap:16px; flex-wrap:wrap; }
+  .btn-primary { background:var(--gold); color:var(--black); padding:16px 36px; font-weight:700; font-size:13px; letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer; transition:.2s; }
+  .btn-primary:hover { background:var(--gold-light); }
+  .btn-outline { border:1px solid rgba(201,168,76,0.4); color:var(--gold); background:transparent; padding:16px 36px; font-weight:600; font-size:13px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:.2s; }
+  .btn-outline:hover { border-color:var(--gold); background:rgba(201,168,76,0.05); }
+
+  .hero-stats { position:absolute; right:48px; top:50%; transform:translateY(-50%); z-index:1; display:flex; flex-direction:column; gap:32px; }
+  .stat { text-align:right; }
+  .stat-num { font-family:'Bebas Neue'; font-size:48px; color:var(--gold); line-height:1; }
+  .stat-label { font-size:11px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; }
+
+  /* ── SECTION COMMON ── */
+  section { padding: 100px 48px; }
+  .section-tag { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+  .section-title { font-family:'Bebas Neue'; font-size:clamp(42px,6vw,72px); letter-spacing:1px; line-height:1; margin-bottom:16px; }
+  .section-sub { color:var(--text-dim); font-size:15px; max-width:500px; line-height:1.7; margin-bottom:52px; }
+  .divider { width:60px; height:2px; background:var(--gold); margin-bottom:48px; }
+
+  /* ── GUIDES GRID ── */
+  #guides { background: var(--charcoal); }
+  .guides-grid { display:grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: auto auto; gap:3px; }
+  .guide-card {
+    position:relative; overflow:hidden; cursor:pointer;
+    background: var(--mid);
+    min-height:280px;
+    display:flex; align-items:flex-end;
+  }
+  .guide-card:first-child { grid-row: 1/3; min-height:580px; }
+  .guide-card-img {
+    position:absolute; inset:0;
+    background-size:cover; background-position:center;
+    transition: transform .6s ease;
+    filter: brightness(0.5);
+  }
+  .guide-card:hover .guide-card-img { transform:scale(1.05); filter:brightness(0.35); }
+  .guide-card-overlay {
+    position:absolute; inset:0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%);
+  }
+  .guide-card-content { position:relative; z-index:1; padding:28px; width:100%; }
+  .guide-tag { display:inline-block; background:var(--gold); color:var(--black); font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:4px 10px; margin-bottom:10px; }
+  .guide-title { font-family:'Bebas Neue'; font-size:28px; line-height:1.1; letter-spacing:1px; }
+  .guide-card:first-child .guide-title { font-size:44px; }
+  .guide-desc { font-size:13px; color:#bbb; margin-top:6px; line-height:1.5; display:none; }
+  .guide-card:hover .guide-desc { display:block; }
+  .guide-arrow { position:absolute; top:24px; right:24px; width:36px; height:36px; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; opacity:0; transition:.3s; font-size:16px; }
+  .guide-card:hover .guide-arrow { opacity:1; border-color:var(--gold); color:var(--gold); }
+
+  /* ── DAILY ROUTINE STRIP ── */
+  #routine { background: var(--black); }
+  .routine-steps { display:flex; gap:0; border:1px solid rgba(201,168,76,0.1); overflow:hidden; }
+  .step {
+    flex:1; padding:36px 28px; border-right:1px solid rgba(201,168,76,0.08);
+    position:relative; transition:.3s;
+  }
+  .step:last-child { border-right:none; }
+  .step:hover { background: rgba(201,168,76,0.04); }
+  .step-num { font-family:'Bebas Neue'; font-size:64px; color:rgba(201,168,76,0.08); line-height:1; position:absolute; top:16px; right:20px; }
+  .step-icon { font-size:28px; margin-bottom:16px; }
+  .step-title { font-weight:600; font-size:15px; margin-bottom:8px; }
+  .step-desc { font-size:13px; color:var(--text-dim); line-height:1.6; }
+  .step-time { display:inline-block; margin-top:12px; font-size:10px; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
+
+  /* ── PRODUCTS / AFFILIATE ── */
+  #products { background: linear-gradient(180deg, var(--charcoal) 0%, var(--black) 100%); }
+  .products-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:2px; }
+  .product-card {
+    background: var(--card-bg); padding:28px 24px; position:relative;
+    border:1px solid rgba(201,168,76,0.05); transition:.3s; cursor:pointer;
+    display:flex; flex-direction:column;
+  }
+  .product-card:hover { border-color:rgba(201,168,76,0.3); transform:translateY(-4px); }
+  .product-badge { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:16px; }
+  .badge-best { color:var(--gold); }
+  .badge-new { color:#7ec8a0; }
+  .badge-popular { color:#c887e0; }
+  .badge-deal { color:var(--rust); }
+  .product-icon { font-size:36px; margin-bottom:16px; }
+  .product-name { font-weight:600; font-size:15px; margin-bottom:6px; line-height:1.3; }
+  .product-desc { font-size:12px; color:var(--text-dim); line-height:1.6; flex:1; margin-bottom:20px; }
+  .product-price { font-family:'Bebas Neue'; font-size:26px; color:var(--gold); margin-bottom:16px; letter-spacing:1px; }
+  .product-price span { font-size:13px; font-family:'DM Sans'; color:var(--text-dim); font-weight:300; text-decoration:line-through; margin-left:6px; }
+  .btn-shop { background:transparent; border:1px solid rgba(201,168,76,0.3); color:var(--gold); padding:11px; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:.2s; width:100%; }
+  .btn-shop:hover { background:var(--gold); color:var(--black); }
+  .affiliate-note { font-size:10px; color:#555; text-align:center; margin-top:24px; letter-spacing:1px; }
+
+  /* ── PINTEREST PINS FEED ── */
+  #pins { background: var(--black); }
+  .pins-masonry { column-count:4; column-gap:12px; }
+  .pin-card {
+    break-inside:avoid; margin-bottom:12px;
+    background: var(--mid); position:relative; overflow:hidden; cursor:pointer;
+    border:1px solid rgba(255,255,255,0.04); transition:.3s;
+  }
+  .pin-card:hover { border-color:rgba(201,168,76,0.3); }
+  .pin-img {
+    width:100%; display:block;
+    background: linear-gradient(135deg, var(--mid) 0%, #252525 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-size:32px; color:#444;
+  }
+  .pin-img-tall { height:260px; }
+  .pin-img-mid { height:190px; }
+  .pin-img-short { height:140px; }
+  .pin-info { padding:14px 16px; }
+  .pin-info h4 { font-size:13px; font-weight:600; line-height:1.4; margin-bottom:4px; }
+  .pin-info p { font-size:11px; color:var(--text-dim); }
+  .pin-save { position:absolute; top:12px; right:12px; background:var(--rust); color:#fff; border:none; font-size:11px; font-weight:700; letter-spacing:1px; padding:6px 14px; cursor:pointer; opacity:0; transition:.2s; text-transform:uppercase; }
+  .pin-card:hover .pin-save { opacity:1; }
+
+  /* ── CTA BANNER ── */
+  .cta-banner {
+    background: var(--gold); padding:80px 48px;
+    display:flex; align-items:center; justify-content:space-between; gap:40px; flex-wrap:wrap;
+  }
+  .cta-banner h2 { font-family:'Bebas Neue'; font-size:clamp(36px,5vw,64px); color:var(--black); line-height:1; max-width:500px; letter-spacing:1px; }
+  .cta-banner p { color:rgba(0,0,0,0.6); margin-top:8px; font-size:15px; }
+  .cta-right { display:flex; flex-direction:column; gap:14px; min-width:280px; }
+  .email-input-wrap { display:flex; }
+  .email-input-wrap input { flex:1; padding:16px 18px; background:rgba(0,0,0,0.12); border:none; color:var(--black); font-size:14px; font-family:'DM Sans'; outline:none; }
+  .email-input-wrap input::placeholder { color:rgba(0,0,0,0.45); }
+  .email-input-wrap button { background:var(--black); color:var(--gold); border:none; padding:16px 22px; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; }
+  .cta-perks { display:flex; gap:24px; }
+  .perk { font-size:12px; color:rgba(0,0,0,0.65); display:flex; align-items:center; gap:6px; }
+  .perk::before { content:'✓'; font-weight:700; color:var(--black); }
+
+  /* ── FOOTER ── */
+  footer { background:var(--charcoal); padding:48px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:24px; border-top:1px solid rgba(201,168,76,0.1); }
+  .footer-logo { font-family:'Bebas Neue'; font-size:22px; letter-spacing:3px; color:var(--gold); }
+  .footer-links { display:flex; gap:28px; list-style:none; }
+  .footer-links a { color:#555; text-decoration:none; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; transition:.2s; }
+  .footer-links a:hover { color:var(--gold); }
+  .footer-copy { font-size:11px; color:#444; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  .hero-content > * { animation: fadeUp .7s ease both; }
+  .hero-eyebrow { animation-delay:.1s; }
+  .hero h1 { animation-delay:.2s; }
+  .hero-sub { animation-delay:.35s; }
+  .hero-btns { animation-delay:.5s; }
+  .hero-stats { animation: fadeUp .7s .4s ease both; }
+
+  @media (max-width:900px) {
+    nav { padding:16px 24px; }
+    .nav-links, .nav-cta { display:none; }
+    .hero { padding:100px 24px 60px; }
+    .hero-stats { display:none; }
+    section { padding:72px 24px; }
+    .guides-grid { grid-template-columns:1fr 1fr; grid-template-rows:auto; }
+    .guide-card:first-child { grid-column:1/3; grid-row:auto; min-height:320px; }
+    .routine-steps { flex-direction:column; }
+    .step { border-right:none; border-bottom:1px solid rgba(201,168,76,0.08); }
+    .products-grid { grid-template-columns:1fr 1fr; }
+    .pins-masonry { column-count:2; }
+    .cta-banner { padding:52px 24px; }
+    footer { padding:36px 24px; flex-direction:column; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">MAXX<span>LOOK</span></div>
+  <ul class="nav-links">
+    <li><a href="#guides">Guides</a></li>
+    <li><a href="#routine">Routine</a></li>
+    <li><a href="#products">Products</a></li>
+    <li><a href="#pins">Pins</a></li>
+  </ul>
+  <a href=https://omg10.com/4/10778477><button class="nav-cta">Get Free Guide</button></a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Men's Glow-Up Authority</div>
+    <h1>LOOKS<em>Maxxing</em>BIBLE</h1>
+    <p class="hero-sub">Science-backed glow-up guides, daily routines, and hand-picked products to elevate your appearance — inside and out.</p>
+    <div class="hero-btns">
+      <a href=start_glowing_quiz.html><button class="btn-primary">Start Your Glow-Up →</button></a>
+        <a href=https://omg10.com/4/10778477><button class="btn-outline">Browse Pins</button></a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">248</div><div class="stat-label">Guides</div></div>
+    <div class="stat"><div class="stat-num">50K+</div><div class="stat-label">Followers</div></div>
+    <div class="stat"><div class="stat-num">30</div><div class="stat-label">Day Challenge</div></div>
+  </div>
+</section>
+
+<!-- GUIDES GRID -->
+<section id="guides">
+  <div class="section-tag">Featured Guides</div>
+  <div class="section-title">Glow-Up<br>Playbook</div>
+  <p class="section-sub">Step-by-step guides with real before/after results. Click any guide to dive in.</p>
+  <div class="divider"></div>
+  <div class="guides-grid">
+    <div class="guide-card">
+      <div class="guide-card-img" style="background: linear-gradient(160deg,#1a1208,#2e200a,#1a1208); background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80'); background-size:cover;"></div>
+      <div class="guide-card-overlay"></div>
+      <div class="guide-card-content">
+        <div class="guide-tag">🔥 Flagship</div>
+        <div class="guide-title">The 30-Day Complete Glow-Up Challenge</div>
+        <div class="guide-desc">Skin, hair, body, style — every day mapped out. This is the blueprint men actually follow.</div>
+      </div>
+      <div class="guide-arrow">→</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-card-img" style="background-image:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80'); background-size:cover;"></div>
+      <div class="guide-card-overlay"></div>
+      <div class="guide-card-content">
+        <div class="guide-tag">Skincare</div>
+        <div class="guide-title">AM/PM Routine For Clear Skin</div>
+        <div class="guide-desc">6 steps, no fluff.</div>
+      </div>
+      <div class="guide-arrow">→</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-card-img" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80'); background-size:cover;"></div>
+      <div class="guide-card-overlay"></div>
+      <div class="guide-card-content">
+        <div class="guide-tag">Fitness</div>
+        <div class="guide-title">V-Taper Body in 12 Weeks</div>
+        <div class="guide-desc">The exact splits that change your silhouette.</div>
+      </div>
+      <div class="guide-arrow">→</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-card-img" style="background-image:url('https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80'); background-size:cover;"></div>
+      <div class="guide-card-overlay"></div>
+      <div class="guide-card-content">
+        <div class="guide-tag">Hair</div>
+        <div class="guide-title">Best Haircuts for Your Face Shape</div>
+      </div>
+      <div class="guide-arrow">→</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-card-img" style="background-image:url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80'); background-size:cover;"></div>
+      <div class="guide-card-overlay"></div>
+      <div class="guide-card-content">
+        <div class="guide-tag">Style</div>
+        <div class="guide-title">Capsule Wardrobe That Actually Works</div>
+      </div>
+      <div class="guide-arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- DAILY ROUTINE STRIP -->
+<section id="routine">
+  <div class="section-tag">Daily System</div>
+  <div class="section-title">The Non-Negotiable Routine</div>
+  <p class="section-sub">What high-performing men do every single day. Build the habits, get the results.</p>
+  <div class="divider"></div>
+  <div class="routine-steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-icon">🌅</div>
+      <div class="step-title">Morning Face Reset</div>
+      <div class="step-desc">Cleanser → toner → Vitamin C serum → SPF moisturizer. Non-negotiable, every day.</div>
+      <div class="step-time">⏱ 4 min</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-icon">💧</div>
+      <div class="step-title">Hydration Protocol</div>
+      <div class="step-desc">3L water, electrolytes, cut the sugar. Your skin is a mirror of what you put in.</div>
+      <div class="step-time">⏱ All day</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-icon">🏋️</div>
+      <div class="step-title">Training Session</div>
+      <div class="step-desc">45-60 min — compound lifts + 15 min cardio. Physique is 50% of looksmaxxing.</div>
+      <div class="step-time">⏱ 60 min</div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-icon">🌙</div>
+      <div class="step-title">Night Skin Repair</div>
+      <div class="step-desc">Retinol or peptide serum + heavy moisturizer. Sleep is your best skincare product.</div>
+      <div class="step-time">⏱ 5 min</div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-icon">😴</div>
+      <div class="step-title">8-Hour Sleep Stack</div>
+      <div class="step-desc">Cool room, silk pillowcase, no screens 30 min before. Recovery = growth.</div>
+      <div class="step-time">⏱ 8 hrs</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS / AFFILIATE -->
+<section id="products">
+  <div class="section-tag">Amazon Picks</div>
+  <div class="section-title">Editor's Product Picks</div>
+  <p class="section-sub">Hand-tested, community-approved. Every product I actually use or recommend.</p>
+  <div class="divider"></div>
+  <div class="products-grid">
+    <div class="product-card">
+      <div class="product-badge badge-best">★ Best Seller</div>
+      <div class="product-icon">🧴</div>
+      <div class="product-name">CeraVe Moisturizing Cream</div>
+      <div class="product-desc">The gold standard for men's daily moisturizing. Fragrance-free, non-comedogenic, dermatologist approved.</div>
+      <div class="product-price">$18 <span>$24</span></div>
+      <button class="btn-shop">Shop on Amazon →</button>
+    </div>
+    <div class="product-card">
+      <div class="product-badge badge-new">✦ New Pick</div>
+      <div class="product-icon">☀️</div>
+      <div class="product-name">EltaMD UV Clear SPF 46</div>
+      <div class="product-desc">The SPF that won't leave a white cast. Lightweight, runs all day. Wear it or regret aging early.</div>
+      <div class="product-price">$41</div>
+      <button class="btn-shop">Shop on Amazon →</button>
+    </div>
+    <div class="product-card">
+      <div class="product-badge badge-popular">◈ Most Popular</div>
+      <div class="product-icon">💊</div>
+      <div class="product-name">Collagen Peptides Powder</div>
+      <div class="product-desc">Skin elasticity, hair thickness, joint recovery. Add to your morning coffee for 6-week results.</div>
+      <div class="product-price">$35 <span>$42</span></div>
+      <button class="btn-shop">Shop on Amazon →</button>
+    </div>
+    <div class="product-card">
+      <div class="product-badge badge-deal">🔥 Best Value</div>
+      <div class="product-icon">⚗️</div>
+      <div class="product-name">The Ordinary Retinol 0.5%</div>
+      <div class="product-desc">Proven anti-aging actives without the luxury markup. Start here, upgrade later.</div>
+      <div class="product-price">$12</div>
+      <button class="btn-shop">Shop on Amazon →</button>
+    </div>
+  </div>
+  <p class="affiliate-note">* As an Amazon Associate I earn from qualifying purchases. Prices subject to change.</p>
+</section>
+
+<!-- PINTEREST PIN FEED -->
+<section id="pins">
+  <div class="section-tag">From Pinterest</div>
+  <div class="section-title">Latest Pins</div>
+  <p class="section-sub">Follow along for daily inspo drops, before/afters, and quick tips.</p>
+  <div class="divider"></div>
+  <div class="pins-masonry">
+    <div class="pin-card"><div class="pin-img pin-img-tall" style="background:linear-gradient(135deg,#1a120a,#2a1e0e); display:flex; align-items:center; justify-content:center;">📸</div><div class="pin-info"><h4>30-Day Skin Transformation</h4><p>Before & After · Skincare</p></div><button class="pin-save">Save</button></div>
+    <div class="pin-card"><div class="pin-img pin-img-mid" style="background:linear-gradient(135deg,#0a1020,#0e1828); display:flex; align-items:center; justify-content:center;">✂️</div><div class="pin-info"><h4>Fade Haircut Guide for Oval Faces</h4><p>Hair · Style</p></div><button class="pin-save">Save</button></div>
+    <div class="pin-card"><div class="pin-img pin-img-tall" style="background:linear-gradient(135deg,#100a1a,#1a0e28); display:flex; align-items:center; justify-content:center;">💪</div><div class="pin-info"><h4>Shoulder Workout for V-Taper</h4><p>Fitness · Physique</p></div><button class="pin-save">Save</button></div>
+    <div class="pin-card"><div class="pin-img pin-img-short" style="background:linear-gradient(135deg,#0a1a10,#0e2818); display:flex; align-items:center; justify-content:center;">🧴</div><div class="pin-info"><h4>5-Step Minimal Skincare Routine</h4><p>Skincare · Guide</p></div><button class="pin-save">Save</button></div>
+    <div class="pin-card"><div class="pin-img pin-img-mid" style="background:linear-gradient(135deg,#1a0a0a,#280e0e); display:flex; align-items:center; justify-content:center;">👔</div><div class="pin-info"><h4>Outfit Formulas That Always Work</h4><p>Style · Capsule</p></div><button class="pin-save">Save</button></div>
+    <div class="pin-card"><div class="pin-img pin-img-short" style="background:linear-gradient(135deg,#1a1a0a,#28280e); display:flex; align-items:center; justify-content:center;">☀️</div><div class="pin-info"><h4>Why You NEED SPF Daily</h4><p>Skincare · Education</p></div><button class="pin-save">Save</button></div>
+    <div class="pin-card"><div class="pin-img pin-img-tall" style="background:linear-gradient(135deg,#0a1a1a,#0e2828); display:flex; align-items:center; justify-content:center;">🏆</div><div class="pin-info"><h4>Glow Up Challenge Week 4 Results</h4><p>Challenge · Results</p></div><button class="pin-save">Save</button></div>
+    <div class="pin-card"><div class="pin-img pin-img-mid" style="background:linear-gradient(135deg,#150a1a,#200e28); display:flex; align-items:center; justify-content:center;">🪒</div><div class="pin-info"><h4>Perfect Jawline Grooming Routine</h4><p>Grooming · Beard</p></div><button class="pin-save">Save</button></div>
+  </div>
+</section>
+
+<!-- EMAIL CTA -->
+<div class="cta-banner">
+  <div>
+    <h2>Get the Free 30-Day Glow-Up Roadmap</h2>
+    <p>No spam. Just the blueprint, delivered once a week.</p>
+  </div>
+  <div class="cta-right">
+    <div class="email-input-wrap">
+      <input type="email" placeholder="your@email.com" />
+      <button>Join Free →</button>
+    </div>
+    <div class="cta-perks">
+      <div class="perk">Free Guide</div>
+      <div class="perk">Weekly Tips</div>
+      <div class="perk">Product Deals</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">MAXXLOOK</div>
+  <ul class="footer-links">
+    <li><a href="#">Guides</a></li>
+    <li><a href="#">Products</a></li>
+    <li><a href="#">Pinterest</a></li>
+    <li><a href="#">Disclaimer</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 MaxxLook · Affiliate Disclosure: We earn from qualifying Amazon purchases.</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,403 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: transparent; font-family: var(--font-sans, system-ui); }
+
+.quiz-wrap {
+  min-height: 600px;
+  background: #0a0a0a;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.quiz-inner {
+  position: relative; z-index: 1;
+  max-width: 680px; margin: 0 auto;
+  padding: 56px 32px 64px;
+}
+
+.progress-bar-wrap {
+  display: flex; gap: 6px; margin-bottom: 40px;
+}
+.progress-seg {
+  flex: 1; height: 3px; background: rgba(201,168,76,0.15);
+  transition: background .4s;
+}
+.progress-seg.done { background: #c9a84c; }
+
+.step-label {
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: #c9a84c; margin-bottom: 10px;
+}
+
+.step-title {
+  font-size: clamp(26px, 5vw, 40px);
+  font-weight: 700;
+  color: #f4f0e8;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.step-sub {
+  font-size: 14px; color: #888; margin-bottom: 36px; line-height: 1.6;
+}
+
+.gender-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px;
+}
+
+.gender-card {
+  background: #141414; border: 1px solid rgba(255,255,255,0.07);
+  padding: 32px 20px; cursor: pointer; text-align: center;
+  transition: all .25s; position: relative; overflow: hidden;
+}
+.gender-card:hover { border-color: rgba(201,168,76,0.4); background: #1a1a14; }
+.gender-card.selected { border-color: #c9a84c; background: #1a1a0e; }
+.gender-card.selected::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: #c9a84c;
+}
+
+.gender-icon { font-size: 42px; display: block; margin-bottom: 12px; }
+.gender-label { font-size: 15px; font-weight: 600; color: #f4f0e8; }
+.gender-sub { font-size: 12px; color: #666; margin-top: 4px; }
+
+.check-mark {
+  position: absolute; top: 12px; right: 12px;
+  width: 20px; height: 20px; background: #c9a84c;
+  display: none; align-items: center; justify-content: center;
+  font-size: 11px; color: #0a0a0a; font-weight: 700;
+}
+.gender-card.selected .check-mark { display: flex; }
+
+.challenge-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 32px;
+}
+
+.challenge-card {
+  background: #141414; border: 1px solid rgba(255,255,255,0.07);
+  padding: 24px 16px; cursor: pointer; text-align: center;
+  transition: all .25s; position: relative; overflow: hidden;
+}
+.challenge-card:hover { border-color: rgba(201,168,76,0.4); }
+.challenge-card.selected { border-color: #c9a84c; background: #1a1a0e; }
+.challenge-card.selected::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: #c9a84c;
+}
+
+.challenge-days {
+  font-size: 36px; font-weight: 700; color: #c9a84c;
+  line-height: 1; margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.challenge-unit { font-size: 11px; color: #666; letter-spacing: 2px; text-transform: uppercase; }
+.challenge-label { font-size: 13px; font-weight: 600; color: #f4f0e8; margin-top: 10px; }
+.challenge-desc { font-size: 11px; color: #666; margin-top: 4px; line-height: 1.5; }
+
+.form-group { margin-bottom: 20px; }
+.form-label {
+  display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: #888; margin-bottom: 8px;
+}
+.form-input {
+  width: 100%; background: #141414;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #f4f0e8; padding: 14px 16px;
+  font-size: 15px; font-family: inherit;
+  outline: none; transition: border .2s;
+  -webkit-appearance: none;
+}
+.form-input:focus { border-color: rgba(201,168,76,0.5); }
+.form-input::placeholder { color: #444; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.why-textarea {
+  width: 100%; min-height: 120px; background: #141414;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #f4f0e8; padding: 14px 16px;
+  font-size: 15px; font-family: inherit;
+  outline: none; transition: border .2s; resize: vertical;
+}
+.why-textarea:focus { border-color: rgba(201,168,76,0.5); }
+.why-textarea::placeholder { color: #444; }
+
+.why-prompts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.why-chip {
+  background: transparent; border: 1px solid rgba(255,255,255,0.1);
+  color: #888; padding: 7px 14px; font-size: 12px; cursor: pointer;
+  font-family: inherit; transition: all .2s;
+}
+.why-chip:hover, .why-chip.active { border-color: #c9a84c; color: #c9a84c; background: rgba(201,168,76,0.06); }
+
+.char-count { font-size: 11px; color: #555; text-align: right; margin-top: 6px; }
+
+.btn-next {
+  width: 100%; background: #c9a84c; border: none; color: #0a0a0a;
+  padding: 18px; font-size: 13px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: background .2s; margin-top: 8px;
+}
+.btn-next:hover { background: #e8d4a0; }
+.btn-next:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; }
+
+.btn-back {
+  background: transparent; border: 1px solid rgba(255,255,255,0.1);
+  color: #888; padding: 14px 24px; font-size: 12px;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; font-family: inherit; transition: all .2s; margin-top: 10px;
+}
+.btn-back:hover { border-color: #888; color: #f4f0e8; }
+
+.step-actions { display: flex; flex-direction: column; gap: 0; }
+
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+.success-wrap { text-align: center; padding: 20px 0; }
+.success-icon {
+  width: 80px; height: 80px; background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.3);
+  margin: 0 auto 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+}
+.success-title { font-size: 36px; font-weight: 700; color: #f4f0e8; margin-bottom: 8px; letter-spacing: -0.5px; }
+.success-sub { font-size: 14px; color: #888; line-height: 1.7; margin-bottom: 32px; max-width: 400px; margin-left: auto; margin-right: auto; }
+.summary-box {
+  background: #141414; border: 1px solid rgba(201,168,76,0.15);
+  padding: 24px; text-align: left; margin-bottom: 28px;
+}
+.summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+.summary-row:last-child { border-bottom: none; }
+.summary-key { color: #666; letter-spacing: 1px; text-transform: uppercase; font-size: 11px; }
+.summary-val { color: #f4f0e8; font-weight: 600; }
+.btn-cta { display: inline-block; background: #c9a84c; color: #0a0a0a; padding: 18px 48px; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border: none; font-family: inherit; transition: background .2s; }
+.btn-cta:hover { background: #e8d4a0; }
+</style>
+
+<div class="quiz-wrap">
+  <div class="grid-bg"></div>
+  <div class="quiz-inner">
+
+    <div class="progress-bar-wrap">
+      <div class="progress-seg done" id="seg1"></div>
+      <div class="progress-seg" id="seg2"></div>
+      <div class="progress-seg" id="seg3"></div>
+      <div class="progress-seg" id="seg4"></div>
+    </div>
+
+    <!-- STEP 1: GENDER -->
+    <div class="step-panel active" id="step1">
+      <div class="step-label">Step 1 of 4</div>
+      <div class="step-title">Who's glowing up?</div>
+      <div class="step-sub">We'll tailor your challenge and product picks to your goals.</div>
+      <div class="gender-grid">
+        <div class="gender-card" onclick="selectGender('man', this)">
+          <div class="check-mark">✓</div>
+          <span class="gender-icon">🧔</span>
+          <div class="gender-label">Man</div>
+          <div class="gender-sub">Skincare, physique, style & grooming</div>
+        </div>
+        <div class="gender-card" onclick="selectGender('woman', this)">
+          <div class="check-mark">✓</div>
+          <span class="gender-icon">👩</span>
+          <div class="gender-label">Woman</div>
+          <div class="gender-sub">Beauty, wellness, confidence & style</div>
+        </div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-next" id="btn1" disabled onclick="goTo(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: CHALLENGE -->
+    <div class="step-panel" id="step2">
+      <div class="step-label">Step 2 of 4</div>
+      <div class="step-title">Choose your challenge</div>
+      <div class="step-sub">How far are you ready to commit? Every level comes with a daily plan.</div>
+      <div class="challenge-grid">
+        <div class="challenge-card" onclick="selectChallenge('7', this)">
+          <div class="check-mark">✓</div>
+          <div class="challenge-days">7</div>
+          <div class="challenge-unit">Days</div>
+          <div class="challenge-label">Quick Reset</div>
+          <div class="challenge-desc">See visible results fast. Perfect first step.</div>
+        </div>
+        <div class="challenge-card" onclick="selectChallenge('30', this)" style="border-color: rgba(201,168,76,0.25);">
+          <div class="check-mark">✓</div>
+          <div style="font-size:10px;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Most Popular</div>
+          <div class="challenge-days">30</div>
+          <div class="challenge-unit">Days</div>
+          <div class="challenge-label">Glow-Up Month</div>
+          <div class="challenge-desc">Build real habits. Transform in 4 weeks.</div>
+        </div>
+        <div class="challenge-card" onclick="selectChallenge('90', this)">
+          <div class="check-mark">✓</div>
+          <div class="challenge-days">90</div>
+          <div class="challenge-unit">Days</div>
+          <div class="challenge-label">Full Maxx Mode</div>
+          <div class="challenge-desc">Complete body, skin & style overhaul.</div>
+        </div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-next" id="btn2" disabled onclick="goTo(3)">Continue →</button>
+        <button class="btn-back" onclick="goTo(1)">← Back</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: PERSONAL INFO -->
+    <div class="step-panel" id="step3">
+      <div class="step-label">Step 3 of 4</div>
+      <div class="step-title">Tell us about yourself</div>
+      <div class="step-sub">So we can personalise your roadmap and daily check-ins.</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Your name</label>
+          <input class="form-input" type="text" id="inp-name" placeholder="e.g. Alex" oninput="checkForm3()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your age</label>
+          <input class="form-input" type="number" id="inp-age" placeholder="e.g. 22" min="13" max="80" oninput="checkForm3()" />
+        </div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-next" id="btn3" disabled onclick="goTo(4)">Continue →</button>
+        <button class="btn-back" onclick="goTo(2)">← Back</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: WHY -->
+    <div class="step-panel" id="step4">
+      <div class="step-label">Step 4 of 4</div>
+      <div class="step-title">Why do you need to<br>glow up?</div>
+      <div class="step-sub">Your reason fuels your consistency. Be honest with yourself.</div>
+      <div class="why-prompts">
+        <button class="why-chip" onclick="addPrompt(this, 'Boost my confidence')">Boost confidence</button>
+        <button class="why-chip" onclick="addPrompt(this, 'Attract better partners')">Attract partners</button>
+        <button class="why-chip" onclick="addPrompt(this, 'Level up in my career')">Career goals</button>
+        <button class="why-chip" onclick="addPrompt(this, 'Feel better in my body')">Feel better in my body</button>
+        <button class="why-chip" onclick="addPrompt(this, 'New chapter, new me')">New chapter, new me</button>
+        <button class="why-chip" onclick="addPrompt(this, 'Social media presence')">Social media</button>
+      </div>
+      <textarea class="why-textarea" id="why-text" placeholder="Write your personal reason here... The more honest, the more it sticks." oninput="checkForm4(); updateCount()"></textarea>
+      <div class="char-count"><span id="char-num">0</span> / 300</div>
+      <div class="step-actions" style="margin-top:20px;">
+        <button class="btn-next" id="btn4" disabled onclick="goTo(5)">Start My Glow-Up →</button>
+        <button class="btn-back" onclick="goTo(3)">← Back</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="step-panel" id="step5">
+      <div class="success-wrap">
+        <div class="success-icon">🔥</div>
+        <div class="success-title">You're locked in.</div>
+        <div class="success-sub">Your personalised glow-up plan is ready. Here's your commitment summary — screenshot it, own it.</div>
+        <div class="summary-box">
+          <div class="summary-row">
+            <span class="summary-key">Name</span>
+            <span class="summary-val" id="sum-name">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Age</span>
+            <span class="summary-val" id="sum-age">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Challenge</span>
+            <span class="summary-val" id="sum-challenge">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Focus</span>
+            <span class="summary-val" id="sum-gender">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Your why</span>
+            <span class="summary-val" id="sum-why" style="max-width:60%; text-align:right; line-height:1.5;">—</span>
+          </div>
+        </div>
+        <a href=glowup_focus_and_plan.html><button class="btn-cta" onclick="sendPrompt('I just completed the Start Glowing quiz. I am a ' + state.gender + ', age ' + state.age + ', starting a ' + state.challenge + '-day challenge. My reason: ' + state.why + '. Give me my personalised Day 1 plan.')">Get My Glow up Plan ↗</button></a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var state = { gender: '', challenge: '', name: '', age: '', why: '' };
+
+function goTo(n) {
+  document.querySelectorAll('.step-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('step' + n).classList.add('active');
+  for (var i = 1; i <= 4; i++) {
+    var seg = document.getElementById('seg' + i);
+    if (seg) seg.classList.toggle('done', i < n || i === 1);
+  }
+  if (n === 5) buildSummary();
+}
+
+function selectGender(g, el) {
+  state.gender = g;
+  document.querySelectorAll('.gender-card').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('btn1').disabled = false;
+}
+
+function selectChallenge(c, el) {
+  state.challenge = c;
+  document.querySelectorAll('.challenge-card').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('btn2').disabled = false;
+}
+
+function checkForm3() {
+  var n = document.getElementById('inp-name').value.trim();
+  var a = document.getElementById('inp-age').value.trim();
+  document.getElementById('btn3').disabled = !(n.length > 0 && a.length > 0 && +a >= 13 && +a <= 80);
+  state.name = n; state.age = a;
+}
+
+function checkForm4() {
+  var t = document.getElementById('why-text').value.trim();
+  document.getElementById('btn4').disabled = t.length < 10;
+  state.why = t;
+}
+
+function updateCount() {
+  var t = document.getElementById('why-text').value;
+  document.getElementById('char-num').textContent = Math.min(t.length, 300);
+  if (t.length > 300) document.getElementById('why-text').value = t.slice(0, 300);
+}
+
+function addPrompt(btn, text) {
+  btn.classList.toggle('active');
+  var ta = document.getElementById('why-text');
+  if (btn.classList.contains('active')) {
+    ta.value = ta.value ? ta.value + ' ' + text : text;
+  } else {
+    ta.value = ta.value.replace(text, '').replace(/\s+/g, ' ').trim();
+  }
+  checkForm4(); updateCount();
+}
+
+function buildSummary() {
+  state.name = document.getElementById('inp-name').value.trim();
+  state.age = document.getElementById('inp-age').value.trim();
+  state.why = document.getElementById('why-text').value.trim();
+  document.getElementById('sum-name').textContent = state.name;
+  document.getElementById('sum-age').textContent = state.age + ' years old';
+  document.getElementById('sum-challenge').textContent = state.challenge + '-Day Challenge';
+  document.getElementById('sum-gender').textContent = state.gender === 'man' ? 'Men\'s Looksmaxxing' : 'Women\'s Glow-Up';
+  document.getElementById('sum-why').textContent = state.why.slice(0, 120) + (state.why.length > 120 ? '...' : '');
+}
+</script>

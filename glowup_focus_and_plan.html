@@ -1,0 +1,659 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui); background: transparent; }
+
+.wrap { background: #0a0a0a; min-height: 700px; position: relative; overflow: hidden; }
+.grid-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.inner { position: relative; z-index: 1; max-width: 740px; margin: 0 auto; padding: 48px 28px 64px; }
+
+.progress-bar { display: flex; gap: 6px; margin-bottom: 36px; }
+.pseg { flex: 1; height: 3px; background: rgba(201,168,76,0.15); transition: background .4s; }
+.pseg.done { background: #c9a84c; }
+
+.step-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #c9a84c; margin-bottom: 10px; }
+.step-title { font-size: clamp(24px, 4.5vw, 38px); font-weight: 700; color: #f4f0e8; line-height: 1.1; margin-bottom: 8px; }
+.step-sub { font-size: 14px; color: #888; margin-bottom: 32px; line-height: 1.6; }
+
+.focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+.focus-card {
+  background: #141414; border: 1px solid rgba(255,255,255,0.07);
+  padding: 24px 20px; cursor: pointer; position: relative;
+  overflow: hidden; transition: all .25s;
+}
+.focus-card:hover { border-color: rgba(201,168,76,0.4); background: #1a1a12; }
+.focus-card.selected { border-color: #c9a84c; background: #1a1a0e; }
+.focus-card.selected::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:#c9a84c; }
+.focus-icon { font-size: 30px; margin-bottom: 12px; display: block; }
+.focus-name { font-size: 16px; font-weight: 700; color: #f4f0e8; margin-bottom: 4px; }
+.focus-desc { font-size: 12px; color: #666; line-height: 1.5; }
+.focus-check { position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; background: #c9a84c; display: none; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #0a0a0a; }
+.focus-card.selected .focus-check { display: flex; }
+
+.sub-options { margin-bottom: 28px; }
+.sub-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #888; margin-bottom: 12px; }
+.sub-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sub-chip {
+  background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #888;
+  padding: 8px 16px; font-size: 12px; cursor: pointer; font-family: inherit;
+  transition: all .2s;
+}
+.sub-chip:hover, .sub-chip.on { border-color: #c9a84c; color: #c9a84c; background: rgba(201,168,76,0.06); }
+
+.form-group { margin-bottom: 18px; }
+.form-label { display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #888; margin-bottom: 8px; }
+.form-input {
+  width: 100%; background: #141414; border: 1px solid rgba(255,255,255,0.08);
+  color: #f4f0e8; padding: 13px 16px; font-size: 14px; font-family: inherit;
+  outline: none; transition: border .2s; -webkit-appearance: none;
+}
+.form-input:focus { border-color: rgba(201,168,76,0.5); }
+.form-input::placeholder { color: #444; }
+select.form-input option { background: #1a1a1a; }
+
+.btn-next { width: 100%; background: #c9a84c; border: none; color: #0a0a0a; padding: 17px; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: background .2s; margin-top: 8px; }
+.btn-next:hover { background: #e8d4a0; }
+.btn-next:disabled { background: #222; color: #555; cursor: not-allowed; }
+.btn-back { width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #888; padding: 13px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: all .2s; margin-top: 8px; }
+.btn-back:hover { border-color: #888; color: #f4f0e8; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* PLAN OUTPUT */
+.plan-wrap { }
+.plan-header { text-align: center; padding-bottom: 36px; border-bottom: 1px solid rgba(201,168,76,0.1); margin-bottom: 36px; }
+.plan-badge { display: inline-block; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); color: #c9a84c; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; padding: 6px 16px; margin-bottom: 16px; }
+.plan-title { font-size: clamp(28px,5vw,44px); font-weight: 700; color: #f4f0e8; line-height: 1.1; margin-bottom: 8px; }
+.plan-sub { font-size: 14px; color: #888; line-height: 1.6; }
+
+.focus-tabs { display: flex; gap: 4px; margin-bottom: 28px; flex-wrap: wrap; }
+.ftab {
+  padding: 9px 18px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  background: #141414; border: 1px solid rgba(255,255,255,0.08); color: #888;
+  cursor: pointer; transition: all .2s; font-family: inherit;
+}
+.ftab.active { background: #c9a84c; color: #0a0a0a; border-color: #c9a84c; }
+
+.plan-body { display: none; }
+.plan-body.active { display: block; }
+
+.phase-block { margin-bottom: 28px; }
+.phase-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.phase-num { width: 36px; height: 36px; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #c9a84c; flex-shrink: 0; }
+.phase-name { font-size: 15px; font-weight: 700; color: #f4f0e8; }
+.phase-range { font-size: 11px; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+.tasks { display: grid; gap: 8px; }
+.task {
+  background: #141414; border: 1px solid rgba(255,255,255,0.06);
+  padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start;
+}
+.task-dot { width: 6px; height: 6px; background: #c9a84c; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.task-text { font-size: 13px; color: #ccc; line-height: 1.6; }
+.task-text strong { color: #f4f0e8; font-weight: 600; }
+
+.products-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 8px; }
+.prod-card { background: #0e0e0e; border: 1px solid rgba(201,168,76,0.12); padding: 14px; }
+.prod-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+.prod-name { font-size: 12px; font-weight: 600; color: #f4f0e8; margin-bottom: 4px; line-height: 1.4; }
+.prod-link { font-size: 11px; color: #c9a84c; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+
+.tip-box { background: rgba(201,168,76,0.05); border-left: 2px solid #c9a84c; padding: 14px 16px; margin-top: 16px; }
+.tip-box p { font-size: 13px; color: #aaa; line-height: 1.6; }
+.tip-box strong { color: #c9a84c; }
+
+.restart-btn { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #888; padding: 13px 24px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: all .2s; margin-top: 28px; }
+.restart-btn:hover { border-color: #888; color: #f4f0e8; }
+</style>
+
+<div class="wrap">
+  <div class="grid-bg"></div>
+  <div class="inner">
+
+    <div class="progress-bar">
+      <div class="pseg done"></div>
+      <div class="pseg done" id="ps2"></div>
+      <div class="pseg" id="ps3"></div>
+      <div class="pseg" id="ps4"></div>
+    </div>
+
+    <!-- STEP 1: FOCUS AREAS -->
+    <div class="panel active" id="p1">
+      <div class="step-label">Step 1 — Focus Areas</div>
+      <div class="step-title">What do you want to glow up?</div>
+      <div class="step-sub">Pick all the areas you want to work on. We'll build a plan for each one.</div>
+      <div class="focus-grid">
+        <div class="focus-card" id="fc-skin" onclick="toggleFocus('skin',this)">
+          <div class="focus-check">✓</div>
+          <span class="focus-icon">✨</span>
+          <div class="focus-name">Skin</div>
+          <div class="focus-desc">Acne, texture, glow, anti-aging & daily routine</div>
+        </div>
+        <div class="focus-card" id="fc-hair" onclick="toggleFocus('hair',this)">
+          <div class="focus-check">✓</div>
+          <span class="focus-icon">💈</span>
+          <div class="focus-name">Hair</div>
+          <div class="focus-desc">Growth, thickness, style & scalp health</div>
+        </div>
+        <div class="focus-card" id="fc-face" onclick="toggleFocus('face',this)">
+          <div class="focus-check">✓</div>
+          <span class="focus-icon">🗿</span>
+          <div class="focus-name">Facial Structure</div>
+          <div class="focus-desc">Jawline, cheekbones, mewing & face grooming</div>
+        </div>
+        <div class="focus-card" id="fc-body" onclick="toggleFocus('body',this)">
+          <div class="focus-check">✓</div>
+          <span class="focus-icon">💪</span>
+          <div class="focus-name">Body</div>
+          <div class="focus-desc">Physique, fat loss, muscle & posture</div>
+        </div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-next" id="btn-f1" disabled onclick="goTo2()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: DEEPER QUESTIONS -->
+    <div class="panel" id="p2">
+      <div class="step-label">Step 2 — Quick Details</div>
+      <div class="step-title">A few more details</div>
+      <div class="step-sub">We'll use this to tailor each day of your plan.</div>
+
+      <div id="skin-qs" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Skin type</label>
+          <select class="form-input" id="skin-type">
+            <option value="">Select...</option>
+            <option>Oily</option><option>Dry</option><option>Combination</option><option>Sensitive</option><option>Normal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="sub-title">Main skin concerns (pick all)</div>
+          <div class="sub-chips">
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Acne / breakouts</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Dark spots</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Dullness</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Large pores</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Wrinkles</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Redness</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="hair-qs" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Current hair situation</label>
+          <select class="form-input" id="hair-sit">
+            <option value="">Select...</option>
+            <option>Thinning / hair loss</option><option>Dry & damaged</option><option>Oily scalp</option><option>Slow growth</option><option>Styling issues</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hair length</label>
+          <select class="form-input" id="hair-len">
+            <option value="">Select...</option>
+            <option>Buzzed / very short</option><option>Short</option><option>Medium</option><option>Long</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="face-qs" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Face shape</label>
+          <select class="form-input" id="face-shape">
+            <option value="">Select...</option>
+            <option>Round</option><option>Square</option><option>Oval</option><option>Heart</option><option>Oblong</option><option>Not sure</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="sub-title">What you want to improve</div>
+          <div class="sub-chips">
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Sharper jawline</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Cheekbones</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Mewing posture</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Beard grooming</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Eye area</button>
+            <button class="sub-chip" onclick="this.classList.toggle('on')">Reduce bloat / puffiness</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="body-qs" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Current body goal</label>
+          <select class="form-input" id="body-goal">
+            <option value="">Select...</option>
+            <option>Lose fat</option><option>Build muscle</option><option>Both (recomp)</option><option>Fix posture</option><option>Get leaner / more defined</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Training availability</label>
+          <select class="form-input" id="train-days">
+            <option value="">Select...</option>
+            <option>1–2 days/week</option><option>3–4 days/week</option><option>5+ days/week</option><option>Home workouts only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn-next" id="btn-p2" onclick="buildPlan()">Generate My Glow-Up Plan →</button>
+        <button class="btn-back" onclick="backTo1()">← Back</button>
+      </div>
+    </div>
+
+    <!-- PLAN OUTPUT -->
+    <div class="panel" id="p3">
+      <div class="plan-wrap">
+        <div class="plan-header">
+          <div class="plan-badge" id="plan-badge">30-Day Plan</div>
+          <div class="plan-title" id="plan-title">Your Glow-Up Roadmap</div>
+          <div class="plan-sub" id="plan-sub">Personalised plan across all your focus areas.</div>
+        </div>
+
+        <div class="focus-tabs" id="focus-tabs"></div>
+        <div id="plan-bodies"></div>
+
+        <button class="restart-btn" onclick="restart()">← Start Over</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var chosen = [];
+var duration = 30;
+
+var PLANS = {
+  skin: {
+    7: [
+      { phase: "Reset", range: "Days 1–3", tasks: [
+        "<strong>Morning:</strong> Gentle cleanser → Vitamin C serum (5–10%) → SPF 30+. No skipping.",
+        "<strong>Evening:</strong> Double cleanse (oil cleanser first, then foam) → niacinamide serum → moisturiser.",
+        "<strong>Diet:</strong> Cut dairy + refined sugar for 7 days — this alone clears 40% of cases.",
+        "<strong>Hydration:</strong> 2.5L water daily minimum. Add electrolytes in the morning.",
+      ]},
+      { phase: "Repair", range: "Days 4–7", tasks: [
+        "Introduce a chemical exfoliant 2x this week — AHA (glycolic acid) for dullness, BHA (salicylic) for acne.",
+        "Swap your pillowcase for a silk or clean cotton one today.",
+        "Add a 10-min gua sha massage nightly to boost circulation and drainage.",
+        "No touching your face. Use clean hands only when applying products.",
+      ]},
+    ],
+    30: [
+      { phase: "Foundation", range: "Week 1", tasks: [
+        "<strong>Lock in your AM routine:</strong> Cleanser → Vit C → SPF. No exceptions, 7 days.",
+        "<strong>PM routine:</strong> Double cleanse → treatment (niacinamide or retinol 0.25%) → moisturiser.",
+        "Audit your diet: cut processed sugar, dairy, and alcohol for the full 30 days.",
+        "Change your pillowcase every 3 days. Wash your phone screen daily.",
+      ]},
+      { phase: "Active Treatment", range: "Week 2–3", tasks: [
+        "Introduce retinol 0.3% on alternate nights. Expect purging — push through it.",
+        "Add a weekly clay mask (kaolin or bentonite) on Sunday evenings.",
+        "Start gua sha or face massage 5 min every night before moisturiser.",
+        "Increase water to 3L. Add collagen peptides to morning coffee.",
+      ]},
+      { phase: "Optimize & Protect", range: "Week 4", tasks: [
+        "Evaluate: which products made the biggest difference? Simplify to the best 5.",
+        "Add an eye cream if you don't have one — the eye area ages fastest.",
+        "SPF is non-negotiable now and forever. Upgrade to SPF 50 PA++++.",
+        "Document results: take a photo in the same light as Day 1.",
+      ]},
+    ],
+    90: [
+      { phase: "Build the Base", range: "Month 1", tasks: [
+        "Master your AM/PM routine completely — it should take under 6 minutes combined.",
+        "Start tretinoin (prescription) if accessible, or retinol 0.5% over-the-counter.",
+        "No sugar, no dairy, no alcohol. Track your meals for the first 30 days.",
+        "Minimum 8 hours of sleep. Cortisol is the #1 enemy of clear skin.",
+      ]},
+      { phase: "Targeted Correction", range: "Month 2", tasks: [
+        "Add a targeted serum: tranexamic acid for hyperpigmentation, peptides for firmness.",
+        "Weekly LED light therapy (red light for anti-aging, blue for acne) — 10 min/day.",
+        "Start a zinc supplement (30mg/day) — clinically proven for acne reduction.",
+        "Upgrade SPF to a tinted mineral SPF 50 for daily use.",
+      ]},
+      { phase: "Refinement", range: "Month 3", tasks: [
+        "Consider a professional facial or microneedling session for texture.",
+        "Assess if actives need rotating — introduce Vitamin B5 for deep hydration.",
+        "Reduce routine to a tight 5-product stack. Less is more at maintenance.",
+        "Photo comparison: before vs week 12. This is your proof of process.",
+      ]},
+    ],
+  },
+  hair: {
+    7: [
+      { phase: "Scalp Reset", range: "Days 1–3", tasks: [
+        "<strong>Scalp massage:</strong> 5 min daily with fingertips. Increases blood flow — proven to boost growth.",
+        "Switch to a sulfate-free, DHT-blocking shampoo. Wash no more than 3x this week.",
+        "Apply rosemary oil (diluted in carrier) to scalp tonight. Leave overnight.",
+        "Stop heat styling for all 7 days. Let hair breathe.",
+      ]},
+      { phase: "Nourish", range: "Days 4–7", tasks: [
+        "Deep conditioning mask for 30 min on Day 4. Wrap with a warm towel.",
+        "Start taking biotin 5000mcg daily with breakfast.",
+        "Drink 2.5L water. Hair is 25% water — dehydration stunts growth.",
+        "Buy a silk pillowcase or bonnet if you have textured hair.",
+      ]},
+    ],
+    30: [
+      { phase: "Scalp Health", range: "Week 1–2", tasks: [
+        "Daily 5-min scalp massage — use rosemary oil 3x/week, dry fingers otherwise.",
+        "DHT-blocking shampoo 2–3x/week. Follow with a hydrating conditioner every wash.",
+        "Start biotin (5000mcg) + collagen supplements every morning.",
+        "Cold rinse on hair at the end of every shower. Seals cuticles.",
+      ]},
+      { phase: "Growth & Thickness", range: "Week 2–3", tasks: [
+        "Add castor oil treatment every Sunday night — massage into scalp, leave overnight.",
+        "Increase protein intake: eggs, fish, legumes. Hair is made of keratin (protein).",
+        "Trim split ends on Day 14. Sounds counterintuitive but prevents breakage.",
+        "Reduce washing to max 3x/week. Over-washing strips natural oils.",
+      ]},
+      { phase: "Style & Maintain", range: "Week 4", tasks: [
+        "Book a haircut appointment — a fresh shape does more than most products.",
+        "Learn one proper styling technique for your hair type this week.",
+        "Introduce a leave-in conditioner or light hair serum for daily use.",
+        "Assess growth with photos — hair grows ~1.25cm/month.",
+      ]},
+    ],
+    90: [
+      { phase: "Foundation", range: "Month 1", tasks: [
+        "DHT-blocker shampoo + scalp massage + rosemary oil is your non-negotiable trinity.",
+        "Start minoxidil 5% if hair loss is a concern — results begin at week 12.",
+        "Eliminate heat tools completely for 60 days minimum.",
+        "Blood work: check ferritin and zinc — deficiencies are the top hidden cause of hair loss.",
+      ]},
+      { phase: "Intensive Growth Phase", range: "Month 2", tasks: [
+        "Derma roller (0.5mm) on scalp 1x/week followed by rosemary oil application.",
+        "Double protein intake. Add collagen powder + biotin + iron supplements.",
+        "Protective styling if applicable — reduce mechanical breakage.",
+        "Weekly deep conditioning treatments. Try a protein mask every 2 weeks.",
+      ]},
+      { phase: "Thickness & Style", range: "Month 3", tasks: [
+        "Consult a trichologist or dermatologist if shedding continues past week 10.",
+        "Hair should now be noticeably thicker and healthier. Invest in a great cut.",
+        "Build your final 3-product hair routine: shampoo, conditioner, styling product.",
+        "Scalp massage and rosemary oil are lifetime habits now.",
+      ]},
+    ],
+  },
+  face: {
+    7: [
+      { phase: "Awareness", range: "Days 1–3", tasks: [
+        "<strong>Mewing:</strong> Correct tongue posture — entire tongue flat on roof of mouth, 24/7.",
+        "20x chewing on each side with gum or tougher foods to build masseter muscle.",
+        "Fix forward head posture now: ears over shoulders when standing. Set reminders.",
+        "Reduce sodium and alcohol to eliminate facial puffiness within 48 hours.",
+      ]},
+      { phase: "Refine", range: "Days 4–7", tasks: [
+        "Gua sha jade tool along jawline 5 min nightly — drains lymph, defines jaw.",
+        "Cold water face splash every morning to tighten skin and reduce swelling.",
+        "If you have a beard, clean up the neckline precisely — it defines the jaw instantly.",
+        "Sleep on your back. Side-sleeping compresses one side of the face over time.",
+      ]},
+    ],
+    30: [
+      { phase: "Posture & Habits", range: "Week 1", tasks: [
+        "Mewing 24/7 — tongue posture is foundational. It will feel unnatural at first.",
+        "Fix anterior pelvic tilt and forward neck: these directly affect facial appearance.",
+        "Hard mewing sessions: 10 min of maximum palate pressure daily.",
+        "Cut sodium, processed food, and alcohol. Face bloat disappears in 5–7 days.",
+      ]},
+      { phase: "Structure Work", range: "Week 2–3", tasks: [
+        "Add jawline exercises: 50 reps jaw clenches + mastic gum 20 min/day.",
+        "Gua sha nightly: 3 strokes per side, along jaw, cheekbone, and forehead.",
+        "Body fat reduction contributes massively — if body fat is above 18%, this is priority 1.",
+        "Posture check every hour. Use phone reminders. Forward neck adds years to your face.",
+      ]},
+      { phase: "Grooming & Polish", range: "Week 4", tasks: [
+        "Perfect your beard line (if applicable) — bottom neckline 2 fingers above Adam's apple.",
+        "Eyebrow grooming: clean up stray hairs, define the arch. Subtle but huge impact.",
+        "Skin clarity directly affects perceived facial structure — combine with skin plan.",
+        "Photo comparison in the same lighting. Symmetry and definition will be visible.",
+      ]},
+    ],
+    90: [
+      { phase: "Foundation Habits", range: "Month 1", tasks: [
+        "Mewing becomes unconscious. It takes ~90 days to rewire muscle memory.",
+        "Posture overhaul: wall angels, chin tucks, and dead hangs daily.",
+        "Aggressive fat loss protocol if needed — facial definition changes with every % of body fat lost.",
+        "Start jaw training with mastic gum 20–30 min/day.",
+      ]},
+      { phase: "Structural Gains", range: "Month 2", tasks: [
+        "Add hard mewing technique (palate expansion pressure) for 10 min daily.",
+        "Masseter hypertrophy: gum chewing + jaw exercises showing visible results by now.",
+        "Bone smashing is NOT recommended — focus on legal methods: posture, gum, mewing.",
+        "Eye area: get sufficient sleep, address hollowness with hydration and iron.",
+      ]},
+      { phase: "Refinement", range: "Month 3", tasks: [
+        "Consult an orthodontist about palate expanders if serious about long-term results.",
+        "Skin + facial structure combine into visible facial glow-up by week 10–12.",
+        "Hair style optimisation for your face shape is the final multiplier.",
+        "Document transformation. The compound effect of 90 days is dramatic.",
+      ]},
+    ],
+  },
+  body: {
+    7: [
+      { phase: "Shock & Reset", range: "Days 1–3", tasks: [
+        "<strong>Training:</strong> 3 full-body sessions — push/pull/legs basics. Compound lifts only.",
+        "Cut all processed food, sugar, and alcohol cold turkey for 7 days.",
+        "2.5L water minimum. No liquid calories.",
+        "Walk 8,000–10,000 steps daily. Increases NEAT and fat oxidation without effort.",
+      ]},
+      { phase: "Lock In", range: "Days 4–7", tasks: [
+        "2 more training sessions. Focus on lat pulldowns, rows, and shoulder press for V-taper.",
+        "High protein diet: 2g per kg bodyweight. Eggs, chicken, fish, Greek yoghurt.",
+        "Cold shower every morning — increases norepinephrine, improves body composition signalling.",
+        "Sleep 8 hours. Testosterone production happens during deep sleep.",
+      ]},
+    ],
+    30: [
+      { phase: "Establish the System", range: "Week 1", tasks: [
+        "4 training sessions per week minimum: Upper A / Lower A / Upper B / Lower B.",
+        "Track calories loosely — aim for 200–500 calorie deficit for fat loss or slight surplus for muscle.",
+        "2g protein per kg bodyweight every day. Non-negotiable.",
+        "Walk 10,000 steps daily on top of training.",
+      ]},
+      { phase: "Progressive Overload", range: "Week 2–3", tasks: [
+        "Add weight or reps to every exercise, every session. This is the only rule of muscle growth.",
+        "Prioritise compound lifts: squat, deadlift, bench, row, OHP. These move the needle.",
+        "Creatine monohydrate 5g/day with water — the most proven supplement in existence.",
+        "Sleep 8 hours. Take one full rest day minimum. Muscle grows during recovery, not training.",
+      ]},
+      { phase: "Physique Focus", range: "Week 4", tasks: [
+        "Photo comparison: same pose, same lighting as Day 1.",
+        "Identify your weak points and begin specialisation — lagging shoulders? Add 2 extra sets.",
+        "Posture is your 'free gains' — chin tucks, wall angels, and thoracic extensions daily.",
+        "Maintain deficit or add 100kcal to surplus based on results so far.",
+      ]},
+    ],
+    90: [
+      { phase: "Build the Engine", range: "Month 1", tasks: [
+        "Establish a 4–5 day lifting program. Push/Pull/Legs or Upper/Lower splits.",
+        "Calorie tracking every day. MyFitnessPal or Cronometer. Data over feeling.",
+        "2g protein / kg. Creatine 5g/day. Multivitamin. Vitamin D3 if low sunlight.",
+        "10,000 steps daily. This alone burns 300–400 extra calories per day.",
+      ]},
+      { phase: "Progressive Mastery", range: "Month 2", tasks: [
+        "Deload week at Day 30 — 50% intensity for one week to prevent plateau.",
+        "Shift to a slight surplus if gaining muscle, maintain deficit if cutting.",
+        "Add one isolation exercise per session for your priority muscle group.",
+        "Sleep, stress, and hydration are 40% of your results — audit all three.",
+      ]},
+      { phase: "Transform & Define", range: "Month 3", tasks: [
+        "You are now likely 5–8kg stronger on all major lifts. Keep going.",
+        "Add 15 min HIIT finishers 2x/week for conditioning and definition.",
+        "Posture transformation should be visible — hang from a bar daily for spinal decompression.",
+        "Document everything. 90-day body transformations are very real and very visible.",
+      ]},
+    ],
+  },
+};
+
+var PRODUCTS = {
+  skin: [
+    { icon: "🧴", name: "CeraVe Moisturiser", link: "#" },
+    { icon: "☀️", name: "EltaMD SPF 46", link: "#" },
+    { icon: "⚗️", name: "The Ordinary Retinol", link: "#" },
+  ],
+  hair: [
+    { icon: "🌿", name: "Rosemary Oil", link: "#" },
+    { icon: "💊", name: "Biotin 5000mcg", link: "#" },
+    { icon: "🪮", name: "DHT-Block Shampoo", link: "#" },
+  ],
+  face: [
+    { icon: "🪨", name: "Jade Gua Sha Tool", link: "#" },
+    { icon: "🌱", name: "Mastic Gum", link: "#" },
+    { icon: "💊", name: "Zinc Supplement", link: "#" },
+  ],
+  body: [
+    { icon: "💊", name: "Creatine Monohydrate", link: "#" },
+    { icon: "🥛", name: "Whey Protein", link: "#" },
+    { icon: "🌡️", name: "Vitamin D3 + K2", link: "#" },
+  ],
+};
+
+var FOCUS_META = {
+  skin: { label: "Skin", icon: "✨" },
+  hair: { label: "Hair", icon: "💈" },
+  face: { label: "Face", icon: "🗿" },
+  body: { label: "Body", icon: "💪" },
+};
+
+function toggleFocus(key, el) {
+  el.classList.toggle('selected');
+  var idx = chosen.indexOf(key);
+  if (idx > -1) chosen.splice(idx, 1);
+  else chosen.push(key);
+  document.getElementById('btn-f1').disabled = chosen.length === 0;
+}
+
+function goTo2() {
+  document.getElementById('p1').classList.remove('active');
+  document.getElementById('p2').classList.add('active');
+  document.getElementById('ps3').classList.add('done');
+  ['skin','hair','face','body'].forEach(function(k) {
+    var el = document.getElementById(k + '-qs');
+    if (el) el.style.display = chosen.indexOf(k) > -1 ? 'block' : 'none';
+  });
+}
+
+function backTo1() {
+  document.getElementById('p2').classList.remove('active');
+  document.getElementById('p1').classList.add('active');
+  document.getElementById('ps3').classList.remove('done');
+}
+
+function buildPlan() {
+  duration = 30;
+  var url = window.location.href;
+  if (url.indexOf('7') > -1) duration = 7;
+  else if (url.indexOf('90') > -1) duration = 90;
+
+  document.getElementById('p2').classList.remove('active');
+  document.getElementById('p3').classList.add('active');
+  document.getElementById('ps4').classList.add('done');
+
+  var dLabel = duration === 7 ? '7-Day' : duration === 30 ? '30-Day' : '3-Month';
+  document.getElementById('plan-badge').textContent = dLabel + ' Glow-Up Plan';
+  document.getElementById('plan-title').textContent = 'Your ' + dLabel + ' Roadmap';
+  document.getElementById('plan-sub').textContent = chosen.length + ' focus area' + (chosen.length > 1 ? 's' : '') + ' · Personalised to your goals';
+
+  var tabs = document.getElementById('focus-tabs');
+  var bodies = document.getElementById('plan-bodies');
+  tabs.innerHTML = '';
+  bodies.innerHTML = '';
+
+  chosen.forEach(function(key, i) {
+    var meta = FOCUS_META[key];
+    var tab = document.createElement('button');
+    tab.className = 'ftab' + (i === 0 ? ' active' : '');
+    tab.textContent = meta.icon + ' ' + meta.label;
+    tab.onclick = (function(k) { return function() { switchTab(k); }; })(key);
+    tab.id = 'tab-' + key;
+    tabs.appendChild(tab);
+
+    var body = document.createElement('div');
+    body.className = 'plan-body' + (i === 0 ? ' active' : '');
+    body.id = 'body-' + key;
+
+    var planKey = duration === 7 ? 7 : duration === 30 ? 30 : 90;
+    var phases = (PLANS[key] && PLANS[key][planKey]) || [];
+
+    phases.forEach(function(phase, pi) {
+      var pb = document.createElement('div');
+      pb.className = 'phase-block';
+      var tasksHTML = phase.tasks.map(function(t) {
+        return '<div class="task"><div class="task-dot"></div><div class="task-text">' + t + '</div></div>';
+      }).join('');
+      pb.innerHTML = '<div class="phase-header"><div class="phase-num">0' + (pi+1) + '</div><div><div class="phase-name">' + phase.phase + '</div><div class="phase-range">' + phase.range + '</div></div></div><div class="tasks">' + tasksHTML + '</div>';
+      body.appendChild(pb);
+    });
+
+    var prods = PRODUCTS[key];
+    if (prods) {
+      var prodSection = document.createElement('div');
+      prodSection.innerHTML = '<div class="sub-title" style="margin-top:24px;margin-bottom:12px;">Recommended Products (Amazon)</div>';
+      var grid = document.createElement('div');
+      grid.className = 'products-row';
+      prods.forEach(function(p) {
+        var pc = document.createElement('div');
+        pc.className = 'prod-card';
+        pc.innerHTML = '<span class="prod-icon">' + p.icon + '</span><div class="prod-name">' + p.name + '</div><div class="prod-link">Shop →</div>';
+        grid.appendChild(pc);
+      });
+      prodSection.appendChild(grid);
+      body.appendChild(prodSection);
+    }
+
+    var tip = document.createElement('div');
+    tip.className = 'tip-box';
+    var tips = {
+      skin: 'Consistency beats intensity. Using 3 products every day beats 10 products twice a week.',
+      hair: 'Hair responds slowly — don\'t judge results before week 8. Stay consistent.',
+      face: 'Mewing and posture take months to rewire. Gua sha and grooming give faster visible wins.',
+      body: 'Track your lifts every session. Progressive overload is the only rule that matters.',
+    };
+    tip.innerHTML = '<p><strong>Key Insight:</strong> ' + tips[key] + '</p>';
+    body.appendChild(tip);
+
+    bodies.appendChild(body);
+  });
+}
+
+function switchTab(key) {
+  document.querySelectorAll('.ftab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.plan-body').forEach(function(b) { b.classList.remove('active'); });
+  var t = document.getElementById('tab-' + key);
+  var b = document.getElementById('body-' + key);
+  if (t) t.classList.add('active');
+  if (b) b.classList.add('active');
+}
+
+function restart() {
+  chosen = [];
+  document.querySelectorAll('.focus-card').forEach(function(c) { c.classList.remove('selected'); });
+  document.getElementById('btn-f1').disabled = true;
+  document.getElementById('p3').classList.remove('active');
+  document.getElementById('p1').classList.add('active');
+  document.getElementById('ps3').classList.remove('done');
+  document.getElementById('ps4').classList.remove('done');
+}
+
+(function() {
+  var d = 30;
+  try {
+    var s = window.parent.document.body.innerText || '';
+    if (s.indexOf('7-day') > -1 || s.indexOf('7 day') > -1) d = 7;
+    else if (s.indexOf('90') > -1 || s.indexOf('3 month') > -1) d = 90;
+  } catch(e) {}
+  duration = d;
+})();
+</script>
